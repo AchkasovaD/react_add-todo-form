@@ -6,18 +6,15 @@ import React, { useState } from 'react';
 import { Todo } from './types/todo';
 
 function getNewId(todos: Todo[]) {
-  const todosIds: number[] = [];
+  const todosIds: number[] = todos.map(t => t.id);
+  const maxId = todosIds.length ? Math.max(...todosIds) : 0;
 
-  todos.map(todo => todosIds.push(todo.id));
-
-  return Math.max(...todosIds) + 1;
+  return maxId + 1;
 }
 
 function getUserById(userId: number) {
   return usersFromServer.find(user => user.id === userId) || null;
 }
-
-const users = [...usersFromServer];
 
 export const App = () => {
   const [todos, setTodos] = useState(() =>
@@ -33,12 +30,10 @@ export const App = () => {
   const [errorUser, setErrorUser] = useState(false);
 
   function reset() {
-    if (!errorTitle && !errorUser) {
-      setTitle('');
-      setSelectedUserId('');
-      setErrorTitle(false);
-      setErrorUser(false);
-    }
+    setTitle('');
+    setSelectedUserId('');
+    setErrorTitle(false);
+    setErrorUser(false);
   }
 
   function addNewTodo(newTodo: Todo) {
@@ -48,13 +43,13 @@ export const App = () => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const isValideTitle = title.trim().length === 0;
+    const isValidTitle = title.trim().length === 0;
     const isValidUser = selectedUserId === '';
 
-    setErrorTitle(isValideTitle);
+    setErrorTitle(isValidTitle);
     setErrorUser(isValidUser);
 
-    if (isValideTitle || isValidUser) {
+    if (isValidTitle || isValidUser) {
       return;
     }
 
@@ -66,8 +61,10 @@ export const App = () => {
       userId: +selectedUserId,
     };
 
-    addNewTodo(newTodo);
-    reset();
+    if (!isValidTitle && !isValidUser) {
+      addNewTodo(newTodo);
+      reset();
+    }
   };
 
   const handleTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,17 +104,11 @@ export const App = () => {
             <option value="" disabled>
               Choose a user
             </option>
-            {users.map(user => {
-              if (user) {
-                return (
-                  <option value={user.id} key={user.id}>
-                    {user.name}
-                  </option>
-                );
-              }
-
-              return;
-            })}
+            {usersFromServer.map(user => (
+              <option value={user.id} key={user.id}>
+                {user.name}
+              </option>
+            ))}
           </select>
           {errorUser && <span className="error">Please choose a user</span>}
         </div>
