@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { Todo } from './types/todo';
 
 function getNewId(todos: Todo[]) {
-  const todosIds: number[] = todos.map(t => t.id);
+  const todosIds: number[] = todos.map(todo => todo.id);
   const maxId = todosIds.length ? Math.max(...todosIds) : 0;
 
   return maxId + 1;
